@@ -1,0 +1,21 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"  // Ændret fra "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Bolche {
+  id          Int      @id @default(autoincrement())
+  navn        String
+  farve       String
+  vaegt       Int
+  smagSurhed  String
+  smagStyrke  String
+  smagType    String
+  raavarepris Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
