@@ -45,8 +45,8 @@ const BolcherApp = () => {
   }, []);
 
   // Get unique values for filters - FIXED VERSION
-  const uniqueFarver = bolcher.length > 0 ? [...new Set(bolcher.map(b => b.farve))] : [];
-  const uniqueStyrker = bolcher.length > 0 ? [...new Set(bolcher.map(b => b.smagStyrke))] : [];
+  const uniqueFarver = bolcher.length > 0 ? Array.from(new Set(bolcher.map(b => b.farve))) : [];
+  const uniqueStyrker = bolcher.length > 0 ? Array.from(new Set(bolcher.map(b => b.smagStyrke))) : [];
 
   // Filter bolcher
   const filteredBolcher = bolcher.filter(bolche => {
