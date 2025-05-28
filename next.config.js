@@ -1,10 +1,19 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    // Experimental features kan tilføjes her
-    experimental: {
-      // serverActions: true, // Hvis du vil bruge Server Actions senere
-    }
-  }
-  
-  module.exports = nextConfig
+  experimental: {
+    serverComponentsExternalPackages: ['@prisma/client'],
+  },
+  // Skip build-time API route checking
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
+  // Don't generate static exports for API routes
+  trailingSlash: false,
+  output: 'standalone',
+}
+
+module.exports = nextConfig
