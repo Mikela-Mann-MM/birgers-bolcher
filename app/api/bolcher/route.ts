@@ -1,15 +1,13 @@
-
-// GET /api/bolcher - Hent alle bolcher
-// POST /api/bolcher - Opret ny bolche
-
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
-    // Hent alle bolcher fra databasen
     const bolcher = await prisma.bolche.findMany({
-      orderBy: { createdAt: 'desc' } // Nyeste først
+      orderBy: { createdAt: 'desc' }
     });
     
     return NextResponse.json(bolcher);
@@ -26,7 +24,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // Valider at alle påkrævede felter er til stede
     const { navn, farve, vaegt, smagSurhed, smagStyrke, smagType, raavarepris } = body;
     
     if (!navn || !farve || !smagType || vaegt <= 0) {
@@ -36,7 +33,6 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Opret ny bolche i databasen
     const nyBolche = await prisma.bolche.create({
       data: {
         navn,

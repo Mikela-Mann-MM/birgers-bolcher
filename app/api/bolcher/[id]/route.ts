@@ -1,9 +1,8 @@
-
-// PUT /api/bolcher/[id] - Opdater bolche
-// DELETE /api/bolcher/[id] - Slet bolche
-
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
 
 export async function PUT(
   request: NextRequest,
@@ -13,7 +12,6 @@ export async function PUT(
     const id = parseInt(params.id);
     const body = await request.json();
     
-    // Opdater bolche i databasen
     const opdateretBolche = await prisma.bolche.update({
       where: { id },
       data: {
@@ -40,7 +38,6 @@ export async function DELETE(
   try {
     const id = parseInt(params.id);
     
-    // Slet bolche fra databasen
     await prisma.bolche.delete({
       where: { id }
     });
