@@ -1,11 +1,21 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs'
+export const runtime = 'nodejs';
 
 export async function GET() {
+  // Skip database during build
+  if (process.env.SKIP_DB_VALIDATION === 'true' && !process.env.DATABASE_URL) {
+    return NextResponse.json({ 
+      status: 'Build mode', 
+      timestamp: new Date().toISOString(),
+      database: 'skipped during build' 
+    });
+  }
+  
+  const { prisma } = await import('@/lib/prisma');
+  
   try {
     await prisma.$queryRaw`SELECT 1`;
     
