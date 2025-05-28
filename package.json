@@ -10,7 +10,8 @@
     "db:migrate": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "postbuild": "npm run db:generate"
+    "postbuild": "npm run db:generate",
+    "buildCommand": "npm run build && npx prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
