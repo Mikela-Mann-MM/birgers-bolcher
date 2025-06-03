@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  env: {
-    SKIP_DB_VALIDATION: process.env.NODE_ENV === 'production' ? 'true' : 'false'
+  // Experimental features kan tilføjes her
+  experimental: {
+    // serverActions: true, // Hvis du vil bruge Server Actions senere
   }
 }
 

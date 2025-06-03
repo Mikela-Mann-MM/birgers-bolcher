@@ -1,23 +1,26 @@
+// Dette er din database skema fil
+// Den definerer strukturen af dine data
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  url      = env("DATABASE_URL")
 }
 
 model Bolche {
-  id          Int      @id @default(autoincrement())
-  navn        String
-  farve       String
-  vaegt       Int
-  smagSurhed  String
-  smagStyrke  String
-  smagType    String
-  raavarepris Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id          Int     @id @default(autoincrement()) // Auto-incrementing ID
+  navn        String                                 // Bolchens navn
+  farve       String                                 // Farve (Rød, Blå, etc.)
+  vaegt       Int                                    // Vægt i gram
+  smagSurhed  String                                 // Sødt, Bittert, Let bittert
+  smagStyrke  String                                 // Mild, Medium, Stærk
+  smagType    String                                 // Jordbær, Citron, Anis, etc.
+  raavarepris Int                                    // Råvarepris i øre
+  createdAt   DateTime @default(now())               // Oprettelsestidspunkt
+  updatedAt   DateTime @updatedAt                    // Sidst opdateret
 
   @@map("bolcher")
 }

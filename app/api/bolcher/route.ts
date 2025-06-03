@@ -1,57 +1,45 @@
+// GET /api/bolcher - Hent alle bolcher
+// POST /api/bolcher - Opret ny bolche
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs'
-
 export async function GET() {
   try {
+    console.log('=== API ROUTE CALLED ===')
+    console.log('Current working directory:', process.cwd())
+    console.log('DATABASE_URL:', process.env.DATABASE_URL)
+    
+    // Test database connection
+    await prisma.$connect()
+    console.log('Prisma connected successfully')
+    
     const bolcher = await prisma.bolche.findMany({
       orderBy: { createdAt: 'desc' }
     });
     
+    console.log('Query successful, found:', bolcher.length, 'bolcher')
     return NextResponse.json(bolcher);
   } catch (error) {
-    console.error('Fejl ved hentning af bolcher:', error);
-    return NextResponse.json(
-      { error: 'Kunne ikke hente bolcher' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
+    console.error('=== API ERROR ===')
     
-    const { navn, farve, vaegt, smagSurhed, smagStyrke, smagType, raavarepris } = body;
-    
-    if (!navn || !farve || !smagType || vaegt <= 0) {
-      return NextResponse.json(
-        { error: 'Manglende eller ugyldige data' },
-        { status: 400 }
-      );
+    // Håndter TypeScript error type properly
+    if (error instanceof Error) {
+      console.error('Error message:', error.message)
+      console.error('Error name:', error.name)
+      console.error('Error stack:', error.stack)
+      
+      return NextResponse.json({ 
+        error: 'Fejl ved hentning af bolcher', 
+        details: error.message,
+        name: error.name
+      }, { status: 500 });
+    } else {
+      console.error('Unknown error:', error)
+      return NextResponse.json({ 
+        error: 'Ukendt fejl ved hentning af bolcher', 
+        details: String(error)
+      }, { status: 500 });
     }
-    
-    const nyBolche = await prisma.bolche.create({
-      data: {
-        navn,
-        farve,
-        vaegt: parseInt(vaegt),
-        smagSurhed,
-        smagStyrke,
-        smagType,
-        raavarepris: parseInt(raavarepris)
-      }
-    });
-    
-    return NextResponse.json(nyBolche, { status: 201 });
-  } catch (error) {
-    console.error('Fejl ved oprettelse af bolche:', error);
-    return NextResponse.json(
-      { error: 'Kunne ikke oprette bolche' },
-      { status: 500 }
-    );
   }
 }

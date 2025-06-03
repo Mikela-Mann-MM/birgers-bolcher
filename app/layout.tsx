@@ -1,4 +1,3 @@
-
 // Root layout for hele applikationen
 // Denne fil wrapper alle sider
 

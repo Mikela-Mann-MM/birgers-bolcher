@@ -1,49 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
+// PUT /api/bolcher/[id] - Opdater bolche
+// DELETE /api/bolcher/[id] - Slet bolche
 
-export async function GET() {
-  // Skip database during build
-  if (process.env.SKIP_DB_VALIDATION === 'true' && !process.env.DATABASE_URL) {
-    return NextResponse.json({ status: 'Build mode' });
-  }
-  
-  const { prisma } = await import('@/lib/prisma');
-  
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    
-    return NextResponse.json({ 
-      status: 'OK', 
-      timestamp: new Date().toISOString(),
-      database: 'connected'
-    });
-  } catch (error) {
-    return NextResponse.json(
-      { 
-        status: 'ERROR', 
-        timestamp: new Date().toISOString(),
-        database: 'disconnected',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    );
-  }
-}
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  // Skip database during build
-  if (process.env.SKIP_DB_VALIDATION === 'true' && !process.env.DATABASE_URL) {
-    return NextResponse.json({ status: 'Build mode' });
-  }
-  
-  const { prisma } = await import('@/lib/prisma');
-  
   try {
     const id = parseInt(params.id);
     const body = await request.json();
     
+    // Opdater bolche i databasen
     const opdateretBolche = await prisma.bolche.update({
       where: { id },
       data: {
@@ -67,16 +36,10 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  // Skip database during build
-  if (process.env.SKIP_DB_VALIDATION === 'true' && !process.env.DATABASE_URL) {
-    return NextResponse.json({ status: 'Build mode' });
-  }
-  
-  const { prisma } = await import('@/lib/prisma');
-  
   try {
     const id = parseInt(params.id);
     
+    // Slet bolche fra databasen
     await prisma.bolche.delete({
       where: { id }
     });
