@@ -24,6 +24,22 @@ const BolcherApp = () => {
     raavarepris: 0
   });
 
+  // Color mapping for visual appeal
+  const getColorClass = (farve: string) => {
+    const colorMap: Record<string, string> = {
+      'Rød': 'bg-red-100 border-red-300 text-red-800',
+      'Orange': 'bg-orange-100 border-orange-300 text-orange-800',
+      'Gul': 'bg-yellow-100 border-yellow-300 text-yellow-800',
+      'Grøn': 'bg-green-100 border-green-300 text-green-800',
+      'Blå': 'bg-blue-100 border-blue-300 text-blue-800',
+      'Lyseblå': 'bg-sky-100 border-sky-300 text-sky-800',
+      'Lilla': 'bg-purple-100 border-purple-300 text-purple-800',
+      'Sort': 'bg-gray-100 border-gray-300 text-gray-800',
+      'Hvid': 'bg-gray-50 border-gray-200 text-gray-700'
+    };
+    return colorMap[farve] || 'bg-gray-100 border-gray-300 text-gray-800';
+  };
+
   // Hent bolcher fra API
   const fetchBolcher = async () => {
     try {
@@ -45,8 +61,13 @@ const BolcherApp = () => {
   }, []);
 
   // Handle submit (create or update)
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
+    // Validate required fields
+    if (!formData.navn || !formData.farve || !formData.smagType || formData.vaegt <= 0) {
+      alert('Udfyld venligst alle påkrævede felter');
+      return;
+    }
+
     try {
       if (editingBolche) {
         // Update existing bolche
@@ -152,107 +173,136 @@ const BolcherApp = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <Candy className="h-12 w-12 text-purple-600 mr-3" />
-            <h1 className="text-4xl font-bold text-gray-800">Birgers Bolcher</h1>
+      {/* Header */}
+      <div className="bg-white shadow-lg border-b-4 border-gradient-to-r from-pink-400 to-purple-500">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-3 rounded-full">
+                <Candy className="h-8 w-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                  Birgers Bolcher
+                </h1>
+                <p className="text-gray-600">Administrer dine lækre bolcher</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-3 rounded-full font-semibold flex items-center space-x-2 transform hover:scale-105 transition-all duration-200 shadow-lg"
+            >
+              <Plus className="h-5 w-5" />
+              <span>Tilføj Bolche</span>
+            </button>
           </div>
-          <p className="text-gray-600">Administration af bolche sortiment</p>
         </div>
+      </div>
 
-        {/* Controls */}
-        <div className="mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
-          {/* Search */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <input
-              type="text"
-              placeholder="Søg efter bolcher..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Search and Filters */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border">
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <input
+                type="text"
+                placeholder="Søg efter navn eller smagtype..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Filter className="h-5 w-5 text-gray-500" />
+                <select
+                  value={filterFarve}
+                  onChange={(e) => setFilterFarve(e.target.value)}
+                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="all">Alle farver</option>
+                  {uniqueFarver.map(farve => (
+                    <option key={farve} value={farve}>{farve}</option>
+                  ))}
+                </select>
+              </div>
+              <select
+                value={filterStyrke}
+                onChange={(e) => setFilterStyrke(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="all">Alle styrker</option>
+                {uniqueStyrker.map(styrke => (
+                  <option key={styrke} value={styrke}>{styrke}</option>
+                ))}
+              </select>
+            </div>
           </div>
-
-          {/* Filters */}
-          <div className="flex gap-2">
-            <select
-              value={filterFarve}
-              onChange={(e) => setFilterFarve(e.target.value)}
-              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
-            >
-              <option value="all">Alle farver</option>
-              {uniqueFarver.map(farve => (
-                <option key={farve} value={farve}>{farve}</option>
-              ))}
-            </select>
-
-            <select
-              value={filterStyrke}
-              onChange={(e) => setFilterStyrke(e.target.value)}
-              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
-            >
-              <option value="all">Alle styrker</option>
-              {uniqueStyrker.map(styrke => (
-                <option key={styrke} value={styrke}>{styrke}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Add button */}
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            Tilføj Bolche
-          </button>
         </div>
 
         {/* Bolcher Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredBolcher.map((bolche) => (
-            <div key={bolche.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-lg text-gray-800">{bolche.navn}</h3>
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => handleEdit(bolche)}
-                    className="p-1 text-blue-600 hover:bg-blue-50 rounded"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(bolche.id)}
-                    className="p-1 text-red-600 hover:bg-red-50 rounded"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+          {filteredBolcher.map(bolche => (
+            <div key={bolche.id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border overflow-hidden">
+              <div className={`h-4 ${getColorClass(bolche.farve).split(' ')[0]}`}></div>
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-gray-800">{bolche.navn}</h3>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEdit(bolche)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(bolche.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Farve:</span>
-                  <span className="font-medium">{bolche.farve}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Vægt:</span>
-                  <span className="font-medium">{bolche.vaegt}g</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Smag:</span>
-                  <span className="font-medium">{bolche.smagType}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Styrke:</span>
-                  <span className="font-medium">{bolche.smagStyrke}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Pris:</span>
-                  <span className="font-medium">{bolche.raavarepris} øre</span>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Farve:</span>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getColorClass(bolche.farve)}`}>
+                      {bolche.farve}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Vægt:</span>
+                    <span className="font-semibold">{bolche.vaegt}g</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Smag:</span>
+                    <span className="font-medium">{bolche.smagType}</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Styrke:</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      bolche.smagStyrke === 'Mild' ? 'bg-green-100 text-green-800' :
+                      bolche.smagStyrke === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {bolche.smagStyrke}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Surhed:</span>
+                    <span className="text-sm">{bolche.smagSurhed}</span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <span className="text-gray-600">Råvarepris:</span>
+                    <span className="font-bold text-green-600">{bolche.raavarepris} øre</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -262,7 +312,8 @@ const BolcherApp = () => {
         {filteredBolcher.length === 0 && (
           <div className="text-center py-12">
             <Candy className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">Ingen bolcher fundet</p>
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">Ingen bolcher fundet</h3>
+            <p className="text-gray-500">Prøv at ændre dine søgekriterier eller tilføj en ny bolche</p>
           </div>
         )}
       </div>
@@ -270,117 +321,129 @@ const BolcherApp = () => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">
-                {editingBolche ? 'Rediger Bolche' : 'Tilføj Ny Bolche'}
+          <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h2 className="text-2xl font-bold mb-6 text-gray-800">
+                {editingBolche ? 'Ret Bolche' : 'Ny Bolche'}
               </h2>
-              <button
-                onClick={resetForm}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="h-6 w-6" />
-              </button>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Navn</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.navn}
+                    onChange={(e) => setFormData(prev => ({ ...prev, navn: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Farve</label>
+                  <select
+                    required
+                    value={formData.farve}
+                    onChange={(e) => setFormData(prev => ({ ...prev, farve: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="">Vælg farve</option>
+                    <option value="Rød">Rød</option>
+                    <option value="Orange">Orange</option>
+                    <option value="Gul">Gul</option>
+                    <option value="Grøn">Grøn</option>
+                    <option value="Blå">Blå</option>
+                    <option value="Lyseblå">Lyseblå</option>
+                    <option value="Lilla">Lilla</option>
+                    <option value="Sort">Sort</option>
+                    <option value="Hvid">Hvid</option>
+                  </select>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Vægt (g)</label>
+                    <input
+                      type="number"
+                      required
+                      min="1"
+                      value={formData.vaegt}
+                      onChange={(e) => setFormData(prev => ({ ...prev, vaegt: parseInt(e.target.value) }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Råvarepris (øre)</label>
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      value={formData.raavarepris}
+                      onChange={(e) => setFormData(prev => ({ ...prev, raavarepris: parseInt(e.target.value) }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Smagtype</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.smagType}
+                    onChange={(e) => setFormData(prev => ({ ...prev, smagType: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    placeholder="f.eks. Jordbær, Citron, Anis"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Surhed</label>
+                    <select
+                      value={formData.smagSurhed}
+                      onChange={(e) => setFormData(prev => ({ ...prev, smagSurhed: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value="Sødt">Sødt</option>
+                      <option value="Let bittert">Let bittert</option>
+                      <option value="Bittert">Bittert</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Styrke</label>
+                    <select
+                      value={formData.smagStyrke}
+                      onChange={(e) => setFormData(prev => ({ ...prev, smagStyrke: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value="Mild">Mild</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Stærk">Stærk</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div className="flex space-x-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    Annuller
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    className="flex-1 bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-200"
+                  >
+                    {editingBolche ? 'Opdater' : 'Opret'}
+                  </button>
+                </div>
+              </div>
             </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Navn</label>
-                <input
-                  type="text"
-                  value={formData.navn}
-                  onChange={(e) => setFormData({...formData, navn: e.target.value})}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Farve</label>
-                <input
-                  type="text"
-                  value={formData.farve}
-                  onChange={(e) => setFormData({...formData, farve: e.target.value})}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Vægt (gram)</label>
-                <input
-                  type="number"
-                  value={formData.vaegt}
-                  onChange={(e) => setFormData({...formData, vaegt: Number(e.target.value)})}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Smag Type</label>
-                <input
-                  type="text"
-                  value={formData.smagType}
-                  onChange={(e) => setFormData({...formData, smagType: e.target.value})}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Smag Surhed</label>
-                <select
-                  value={formData.smagSurhed}
-                  onChange={(e) => setFormData({...formData, smagSurhed: e.target.value})}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
-                >
-                  <option value="Sødt">Sødt</option>
-                  <option value="Bittert">Bittert</option>
-                  <option value="Let bittert">Let bittert</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Smag Styrke</label>
-                <select
-                  value={formData.smagStyrke}
-                  onChange={(e) => setFormData({...formData, smagStyrke: e.target.value})}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
-                >
-                  <option value="Mild">Mild</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Stærk">Stærk</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Råvarepris (øre)</label>
-                <input
-                  type="number"
-                  value={formData.raavarepris}
-                  onChange={(e) => setFormData({...formData, raavarepris: Number(e.target.value)})}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
-                  required
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  Annuller
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-                >
-                  {editingBolche ? 'Opdater' : 'Tilføj'}
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}

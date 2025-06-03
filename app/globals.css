@@ -10,18 +10,26 @@
 
 @layer components {
   .bolche-card {
-    @apply bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow;
+    @apply bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border overflow-hidden;
   }
   
   .bolche-form {
-    @apply space-y-4 bg-white p-6 rounded-lg shadow-md;
+    @apply space-y-4 bg-white p-6 rounded-2xl shadow-lg;
   }
   
   .bolche-input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent;
   }
   
   .bolche-button {
-    @apply px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500;
+    @apply px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full hover:from-pink-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 font-semibold transform hover:scale-105 transition-all duration-200 shadow-lg;
+  }
+  
+  .bolche-search {
+    @apply w-full pl-10 pr-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-purple-500 focus:border-transparent;
+  }
+  
+  .bolche-filter {
+    @apply border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500;
   }
 }
