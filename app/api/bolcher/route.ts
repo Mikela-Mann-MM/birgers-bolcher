@@ -43,3 +43,56 @@ export async function GET() {
     }
   }
 }
+
+// POST FUNKTION
+export async function POST(request: NextRequest) {
+  try {
+    console.log('=== POST API ROUTE CALLED ===')
+    
+    const body = await request.json();
+    console.log('Request body:', body);
+    
+    // Valider required felter
+    if (!body.navn || !body.farve || !body.smagType) {
+      return NextResponse.json(
+        { error: 'Navn, farve og smagType er påkrævede' },
+        { status: 400 }
+      );
+    }
+    
+    // Opret ny bolche i databasen
+    const nyBolche = await prisma.bolche.create({
+      data: {
+        navn: body.navn,
+        farve: body.farve,
+        vaegt: parseInt(body.vaegt) || 0,
+        smagSurhed: body.smagSurhed || 'Sødt',
+        smagStyrke: body.smagStyrke || 'Mild', 
+        smagType: body.smagType,
+        raavarepris: parseInt(body.raavarepris) || 0,
+      }
+    });
+    
+    console.log('Ny bolche oprettet:', nyBolche);
+    return NextResponse.json(nyBolche, { status: 201 });
+    
+  } catch (error) {
+    console.error('=== POST API ERROR ===')
+    
+    if (error instanceof Error) {
+      console.error('Error message:', error.message)
+      console.error('Error stack:', error.stack)
+      
+      return NextResponse.json({ 
+        error: 'Fejl ved oprettelse af bolche', 
+        details: error.message
+      }, { status: 500 });
+    } else {
+      console.error('Unknown error:', error)
+      return NextResponse.json({ 
+        error: 'Ukendt fejl ved oprettelse af bolche', 
+        details: String(error)
+      }, { status: 500 });
+    }
+  }
+}
