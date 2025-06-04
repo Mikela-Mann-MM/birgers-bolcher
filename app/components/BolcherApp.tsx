@@ -157,9 +157,14 @@ const BolcherApp = () => {
   });
 
   // Get unique values for filters
-  const uniqueFarver = [...new Set(bolcher.map(b => b.farve))];
-  const uniqueStyrker = [...new Set(bolcher.map(b => b.smagStyrke))];
+  const uniqueFarver = bolcher
+  .map(b => b.farve)
+  .filter((value, index, self) => self.indexOf(value) === index);
 
+const uniqueStyrker = bolcher
+  .map(b => b.smagStyrke)
+  .filter((value, index, self) => self.indexOf(value) === index);
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 flex items-center justify-center">
