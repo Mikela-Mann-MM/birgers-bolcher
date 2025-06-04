@@ -2,7 +2,7 @@
 // DELETE /api/bolcher/[id] - Slet bolche
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '../../../../lib/prisma';
 
 export async function PUT(
   request: NextRequest,
